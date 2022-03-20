@@ -36,3 +36,5 @@ export const networkConfig: {
     fundAmount: (10 * 10 ** 18).toString(),
   },
 };
+
+export const developmentChains = ["hardhat", "localhost"];

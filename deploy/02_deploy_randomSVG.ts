@@ -1,7 +1,7 @@
 import { HardhatRuntimeEnvironment } from "hardhat/types";
 import { DeployFunction } from "hardhat-deploy/types";
-import { ethers } from "hardhat";
-import { networkConfig } from "../helper-hardhat-config";
+import { ethers, network } from "hardhat";
+import { networkConfig, developmentChains } from "../helper-hardhat-config";
 import { Contract } from "ethers";
 
 const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
@@ -18,7 +18,7 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   const signers = await hre.ethers.getSigners();
   const signer = signers[0];
 
-  if (chainId === "31337") {
+  if (developmentChains.includes(network.name)) {
     const VRFCoordinatorMockV2 = await get("VRFCoordinatorMockV2");
     const LinkToken = await get("LinkToken");
     const VRFCoordinatorMockV2Contract = await ethers.getContractFactory(
@@ -81,16 +81,8 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
     signer
   );
 
-  if (chainId !== "31337") {
-    // Funding subscription with LINK tokens
-    const fundTransaction = await randomSVG.fundSubscription(
-      ethers.utils.parseEther("10"),
-      {
-        gasLimit: 200000,
-      }
-    );
-    await fundTransaction.wait(1);
-  } else {
+  // Funding subscription with LINK tokens
+  if (developmentChains.includes(network.name)) {
     while (subscriptionId === "") {
       log("Waiting for subscription to be created...", subscriptionId);
       await new Promise((resolve) => setTimeout(resolve, 1000));
@@ -100,6 +92,14 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
       ethers.utils.parseEther("10")
     );
     await fundTx.wait();
+  } else {
+    const fundTransaction = await randomSVG.fundSubscription(
+      ethers.utils.parseEther("10"),
+      {
+        gasLimit: 200000,
+      }
+    );
+    await fundTransaction.wait(1);
   }
 
   const transactionResponse = await randomSVG.create({
