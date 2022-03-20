@@ -37,7 +37,7 @@ contract SVGNFT is ERC721URIStorage {
     }
 
     function formatTokenURI(string memory _imageURI)
-        public
+        internal
         pure
         returns (string memory)
     {

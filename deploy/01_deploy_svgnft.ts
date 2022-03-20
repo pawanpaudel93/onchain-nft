@@ -32,3 +32,4 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   log("You can view tokenURI here with:", await svgNFT.tokenURI(0));
 };
 export default func;
+func.tags = ["all", "svg"];
